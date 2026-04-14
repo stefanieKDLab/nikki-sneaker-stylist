@@ -5,7 +5,7 @@ export default async function handler(req, res) {
 
   try {
     const { query } = req.body
-    const encoded = encodeURIComponent(`${query} nike.com official`)
+  const encoded = encodeURIComponent(`${query} nike.com lateral side view`)
     const url = `https://serpapi.com/search.json?engine=google_images&q=${encoded}&api_key=${process.env.SERPAPI_KEY}&num=5&safe=active`
 
     const response = await fetch(url)
