@@ -273,8 +273,11 @@ export default function App() {
           <div className="rcards">
             {results.map((r, i) => (
               <div key={i} className="rcard">
-                <div className="rimgwrap" style={{ background: CARD_BG[i % CARD_BG.length] }}>
-                  <div className="rfallback">{r.name}</div>
+             <div className="rimgwrap" style={{ background: CARD_BG[i % CARD_BG.length] }}>
+  {r.image
+    ? <img src={r.image} alt={r.name} style={{ width:"100%", height:"100%", objectFit:"contain", padding:"12px" }}/>
+    : <div className="rfallback">{r.name}</div>
+  }
                   <div className="rrank-badge"><div className="rrank-num">#{i+1}</div><div className="rrank-label">{i===0?"Top Pick":i===1?"Runner Up":"Also Great"}</div></div>
                 </div>
                 <div className="rbody">
