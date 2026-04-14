@@ -5,17 +5,17 @@ export default async function handler(req, res) {
 
   try {
     const { query } = req.body
-    const encoded = encodeURIComponent(`${query} site:nike.com`)
-    const url = `https://serpapi.com/search.json?engine=google_shopping&q=${encoded}&api_key=${process.env.SERPAPI_KEY}&num=5`
+    const encoded = encodeURIComponent(`${query} nike.com official`)
+    const url = `https://serpapi.com/search.json?engine=google_images&q=${encoded}&api_key=${process.env.SERPAPI_KEY}&num=5&safe=active`
 
     const response = await fetch(url)
     const data = await response.json()
 
-    const results = data.shopping_results || []
+    const results = data.images_results || []
     let image = null
     for (const result of results) {
-      image = result?.thumbnail || result?.image || null
-      if (image) break
+      const src = result?.original || result?.thumbnail || null
+      if (src) { image = src; break }
     }
 
     return res.status(200).json({ image })
