@@ -165,12 +165,16 @@ export default function App() {
     const scored = NIKE_CATALOG.map(s => ({ ...s, score: scoreSneaker(s, selectedStyles, selectedBudget) })).sort((a, b) => b.score - a.score).slice(0, 3);
     const prompt = `You are Nikki, a warm, culturally fluent Nike sneaker stylist. Speak like a knowledgeable best friend — direct, enthusiastic, never salesy.\nCustomer profile:\n- Style: ${selectedStyles.join(", ")}\n- Budget: ${BUDGET_OPTIONS.find(o => o.id === selectedBudget)?.label}\n- Shopping for: ${gender}\n- Use: ${uc}\nWrite a punchy personalized stylist note for each sneaker. Max 2 sentences. Be specific to why it works for THIS person.\n1. ${scored[0].name} ($${scored[0].price})\n2. ${scored[1].name} ($${scored[1].price})\n3. ${scored[2].name} ($${scored[2].price})\nRespond ONLY with a JSON array of 3 objects with "name" and "note" fields. No markdown, no extra text.`;
     try {
-      const res = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 1000, messages: [{ role: "user", content: prompt }] }) });
-      const data = await res.json();
-      const notes = JSON.parse(data.content?.[0]?.text?.replace(/```json|```/g, "").trim() || "[]");
-      setResults(scored.map((s, i) => ({ ...s, note: notes[i]?.note || "" })));
+      const [aiRes, ...imgRes] = await Promise.all([
+        fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 1000, messages: [{ role: "user", content: prompt }] }) }),
+        ...scored.map(s => fetch("/api/images", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ query: s.name }) }))
+      ]);
+      const aiData = await aiRes.json();
+      const notes = JSON.parse(aiData.content?.[0]?.text?.replace(/```json|```/g, "").trim() || "[]");
+      const images = await Promise.all(imgRes.map(r => r.json()));
+      setResults(scored.map((s, i) => ({ ...s, note: notes[i]?.note || "", image: images[i]?.image || null })));
     } catch {
-      setResults(scored.map(s => ({ ...s, note: "A strong match for your style profile." })));
+      setResults(scored.map(s => ({ ...s, note: "A strong match for your style profile.", image: null })));
     }
     setMessages(p => p.filter(m => m.type !== "loading"));
     addMsg("assistant", "Here are your top 3 picks — Nikki-approved. 🧡");
