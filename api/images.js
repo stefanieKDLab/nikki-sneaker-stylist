@@ -5,8 +5,8 @@ export default async function handler(req, res) {
 
   try {
     const { query } = req.body
-    const encoded = encodeURIComponent(`Nike ${query}`)
-    const url = `https://serpapi.com/search.json?engine=google_shopping&q=${encoded}&api_key=${process.env.SERPAPI_KEY}&num=3`
+  const encoded = encodeURIComponent(`Nike ${query} shoe`)
+const url = `https://serpapi.com/search.json?engine=google_shopping&q=${encoded}&api_key=${process.env.SERPAPI_KEY}&num=5`
 
     const response = await fetch(url)
     const data = await response.json()
